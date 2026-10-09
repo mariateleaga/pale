@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#B8174F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>Scheda Palestra Mary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: phone-first single column; sticky day tabs; one card per exercise with set dots; rest timer bar at bottom */
+:root{
+  --bg:#F2F3F7; --card:#FFFFFF; --fg:#1B1D2A; --muted:#5F6377; --line:#DDE0E8;
+  --accent:#B8174F; --accent-soft:#F8E3EA; --done:#2E7D5B;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131A; --card:#1C1E29; --fg:#ECEDF3; --muted:#9A9EB2; --line:#2C2F3D;
+  --accent:#F06A95; --accent-soft:#3A1E2A; --done:#5FC59A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131A; --card:#1C1E29; --fg:#ECEDF3; --muted:#9A9EB2; --line:#2C2F3D;
+  --accent:#F06A95; --accent-soft:#3A1E2A; --done:#5FC59A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.4}
+.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:12px 120px}
+header h1{font-family:var(--display);font-weight:700;font-size:1.9rem;letter-spacing:.01em;margin:4px 0 2px;text-transform:uppercase}
+header p{margin:0;color:var(--muted);font-size:.85rem}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding-block:12px}
+nav button{font-family:var(--display);font-weight:700;font-size:1.05rem;letter-spacing:.04em;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 4px;cursor:pointer;line-height:1.1}
+nav button small{display:block;font-family:var(--body);font-weight:500;font-size:.68rem;letter-spacing:0;color:var(--muted);margin-top:2px}
+nav button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+nav button[aria-selected="true"] small{color:rgba(255,255,255,.85)}
+nav button:focus-visible,.dot:focus-visible,.rest:focus-visible,.link:focus-visible,.reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.day-title{font-family:var(--display);font-weight:700;font-size:1.35rem;text-transform:uppercase;margin:6px 0 10px}
+.list{display:flex;flex-direction:column;gap:10px}
+.ex{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.ex.complete{border-color:var(--done)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.name{font-weight:600;font-size:1rem;min-width:0}
+.link{font-size:.78rem;color:var(--accent);text-decoration:none;white-space:nowrap;font-weight:600}
+.stats{display:grid;grid-template-columns:1fr 1.4fr auto;gap:8px;align-items:end}
+.stat span{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.stat b{font-family:var(--display);font-weight:700;font-size:1.15rem;font-variant-numeric:tabular-nums;line-height:1.15}
+.rest{font:inherit;font-weight:600;font-size:.82rem;border:1px solid var(--accent);color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:6px 10px;cursor:pointer;white-space:nowrap}
+.dots{display:flex;gap:8px;flex-wrap:wrap}
+.dot{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:transparent;color:var(--muted);font:600 .85rem var(--body);cursor:pointer}
+.dot.on{background:var(--done);border-color:var(--done);color:#fff}
+.circuit{margin-top:18px;border-top:2px dashed var(--line);padding-top:14px}
+.circuit h3{font-family:var(--display);font-weight:700;font-size:1.2rem;text-transform:uppercase;margin:0 0 2px}
+.circuit p{margin:0 0 10px;color:var(--muted);font-size:.85rem}
+.note{color:var(--muted);font-size:.8rem;margin:14px 0 0}
+.reset{font:inherit;font-size:.8rem;color:var(--muted);background:none;border:none;text-decoration:underline;cursor:pointer;padding:0;margin-top:8px}
+.timer{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--fg);color:var(--bg);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:14px}
+.timer b{font-family:var(--display);font-size:2rem;font-variant-numeric:tabular-nums;min-width:4ch}
+.timer .bar{flex:1;height:6px;background:color-mix(in srgb,var(--bg) 25%,transparent);border-radius:3px;overflow:hidden}
+.timer .bar i{display:block;height:100%;background:var(--accent);width:100%}
+.timer button{font:600 .85rem var(--body);background:none;border:1px solid var(--bg);color:var(--bg);border-radius:8px;padding:6px 10px;cursor:pointer}
+.timer.end b{color:var(--accent)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Scheda palestra</h1>
+    <p>Tocca i pallini per segnare le serie, tocca il recupero per far partire il timer.</p>
+  </header>
+  <nav id="tabs" role="tablist"></nav>
+  <main id="day"></main>
+  <p class="note">* Peso indicativo: la prima settimana trova quello giusto per te.<br>Quando completi tutte le serie al massimo delle ripetizioni, aumenta il carico.</p>
+  <button class="reset" id="reset" type="button">Azzera le serie di questo giorno</button>
+</div>
+
+<div class="timer" id="timer" hidden>
+  <b id="tLeft">2:00</b>
+  <div class="bar"><i id="tBar"></i></div>
+  <button type="button" id="tStop">Chiudi</button>
+</div>
+
+<script>
+const DAYS=[
+ {id:"g1",tab:"G1",sub:"Gambe",title:"Gambe · focus glutei",ex:[
+  ["Hip thrust",4,"8–10","20 kg (+5 kg/sett.)",120],
+  ["Stacco rumeno con manubri",3,"8–10","2 × 10 kg*",120],
+  ["Affondi bulgari",3,"10 per gamba","2 × 6 kg*",90],
+  ["Abductor machine",3,"15","30 kg",60],
+  ["Leg curl",3,"12","20 kg*",60]]},
+ {id:"g2",tab:"G2",sub:"Upper + abs",title:"Parte superiore + addominali",ex:[
+  ["Lat machine",3,"8–10","30 kg*",90],
+  ["Chest press o panca manubri",3,"8–10","2 × 8 kg*",90],
+  ["Rematore al cavo",3,"10","25 kg*",90],
+  ["Lento avanti con manubri",3,"10","2 × 6 kg*",90],
+  ["Alzate laterali",3,"12–15","2 × 3 kg*",60],
+  ["Face pull",2,"15","10 kg*",60]],
+  circ:{name:"Addominali A",ex:[
+  ["Ginocchia al petto da seduta, peso sui piedi (bassi)","15","2,5 kg"],
+  ["Russian twist (laterali)","20 (10 per lato)","corpo libero o 2,5 kg"],
+  ["Apertura a V intorno al peso (bassi)","12","corpo libero"],
+  ["Forbici incrociate sopra il peso (bassi e laterali)","20 (10 per lato)","corpo libero"],
+  ["Crunch a terra (alti)","15","corpo libero"]],
+  extra:[["Knee raise alla sedia romana",3,"12","corpo libero",60],["Plank",1,"45 s","corpo libero",0]]}},
+ {id:"g3",tab:"G3",sub:"Gambe",title:"Gambe · quadricipiti e glutei",ex:[
+  ["Squat (o goblet squat)",4,"6–8","30 kg bilanciere / 14 kg goblet*",120],
+  ["Seated leg press, piedi alti",3,"10–12","40 kg",90],
+  ["Kickback al cavo",3,"12–15 per gamba","5 kg*",60],
+  ["Leg extension",2,"12–15","20 kg*",60],
+  ["Calf raise in piedi su un gradino",3,"15–20","corpo libero",45]]},
+ {id:"x",tab:"Extra",sub:"Solo abs",title:"Giorno extra · solo addominali",ex:[]}
+];
+DAYS[3].circ=DAYS[1].circ;
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let cur=store.get("tab","g1"); if(!DAYS.find(d=>d.id===cur))cur="g1";
+let sets=store.get("sets",{});
+const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+const yt=n=>"https://www.youtube.com/results?search_query="+encodeURIComponent(n+" esecuzione corretta");
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function card(key,name,n,reps,kg,rest){
+  const st=sets[key]||[];
+  const dots=Array.from({length:n},(_,i)=>`<button type="button" class="dot${st[i]?" on":""}" data-k="${key}" data-i="${i}" aria-pressed="${!!st[i]}" aria-label="Serie ${i+1}">${i+1}</button>`).join("");
+  const done=st.filter(Boolean).length>=n;
+  return `<article class="ex${done?" complete":""}">
+   <div class="top"><div class="name">${esc(name)}</div><a class="link" href="${yt(name)}" target="_blank" rel="noopener">Video ↗</a></div>
+   <div class="stats">
+    <div class="stat"><span>${rest?"Serie × rip":"Ripetizioni"}</span><b>${rest?n+" × ":""}${esc(reps)}</b></div>
+    <div class="stat"><span>Peso</span><b>${esc(kg)}</b></div>
+    ${rest?`<button type="button" class="rest" data-s="${rest}">⏱ ${rest>=60&&rest%60===0?rest/60+" min":rest+" s"}</button>`:"<span></span>"}
+   </div>
+   <div class="dots">${dots}</div></article>`;
+}
+function render(){
+  document.getElementById("tabs").innerHTML=DAYS.map(d=>`<button type="button" role="tab" aria-selected="${d.id===cur}" data-d="${d.id}">${d.tab}<small>${d.sub}</small></button>`).join("");
+  const d=DAYS.find(x=>x.id===cur);
+  let h=`<h2 class="day-title">${d.title}</h2><div class="list">`+d.ex.map((e,i)=>card(d.id+"-"+i,e[0],e[1],e[2],e[3],e[4])).join("")+`</div>`;
+  if(d.circ){
+    h+=`<section class="circuit"><h3>${d.circ.name}</h3><p>Circuito: 3 giri senza pausa tra gli esercizi. Recupero tra un giro e l'altro:</p>
+      <button type="button" class="rest" data-s="60">⏱ 60 s tra i giri</button>
+      <div class="list" style="margin-top:10px">`+d.circ.ex.map((e,i)=>card(d.id+"-c"+i,e[0],3,e[1],e[2],0)).join("")+`</div>
+      <h3 style="margin-top:18px">Dopo il circuito</h3>
+      <div class="list" style="margin-top:10px">`+d.circ.extra.map((e,i)=>card(d.id+"-x"+i,e[0],e[1],e[2],e[3],e[4])).join("")+`</div></section>`;
+  }
+  document.getElementById("day").innerHTML=h;
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button"); if(!t)return;
+  if(t.dataset.d){cur=t.dataset.d;store.set("tab",cur);render();window.scrollTo(0,0);return}
+  if(t.dataset.k){const k=t.dataset.k,i=+t.dataset.i;sets[k]=sets[k]||[];sets[k][i]=!sets[k][i];store.set("sets",sets);render();return}
+  if(t.dataset.s){startTimer(+t.dataset.s);return}
+});
+document.getElementById("reset").onclick=()=>{Object.keys(sets).forEach(k=>{if(k.startsWith(cur+"-"))delete sets[k]});store.set("sets",sets);render()};
+
+let tInt=null;
+function startTimer(sec){
+  const box=document.getElementById("timer"),left=document.getElementById("tLeft"),bar=document.getElementById("tBar");
+  clearInterval(tInt); box.hidden=false; box.classList.remove("end");
+  const end=Date.now()+sec*1000;
+  const tick=()=>{const r=Math.max(0,Math.round((end-Date.now())/1000));left.textContent=fmt(r);bar.style.width=(r/sec*100)+"%";
+    if(r<=0){clearInterval(tInt);box.classList.add("end");left.textContent="Via!";try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}};
+  tick(); tInt=setInterval(tick,250);
+}
+document.getElementById("tStop").onclick=()=>{clearInterval(tInt);document.getElementById("timer").hidden=true};
+render();
+</script>
+</body>
+</html>
